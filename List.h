@@ -208,9 +208,13 @@ namespace Sp {
 	class SafeList
 	{
 	public:
-		void Access(std::function<void(List<T>)> process);
+		void Access(std::function<void(List<T>)> process) {
+			std::lock_guard<std::mutex> lock(mtx);
+			process(list);
+		};
 
 	private:
 		List<T> list;
+		std::mutex mtx;
 	};
 }
