@@ -58,6 +58,8 @@ namespace Sp {
 	class List
 	{
 	public:
+		~List() { Clear(); }
+
 		Iterator<T> PushFront(T obj) {
 			Cell<T>* front;
 			front = (Cell<T>*)malloc(sizeof(Cell<T>));
