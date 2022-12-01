@@ -27,47 +27,83 @@ int main()
 
     State state = State::MENU;
 
-    bool hasDrew[3] = {};
+    //bool hasDrew[3] = {};
     string input;
 
     while (true)
     {
         if (state == State::MENU || (int)state > (int)State::SORT)
         {
-            system("cls");
+            if (strList.Size())
+            {
+                system("cls");
 
-            cout << "[要素の操作]" << endl;
-            cout << "1.要素の表示" << endl;
-            cout << "2.要素の挿入" << endl;
-            cout << "3.要素の編集" << endl;
-            cout << "4.要素の削除" << endl;
-            cout << "5.要素の並び替え(オプション)" << endl;
-            cout << endl;
-            cout << "-------------------------------" << endl;
-            cout << "操作を選択してください" << endl;
-            cin >> input;
-            state = (State)stoi(input);
+                cout << "[要素の操作]" << endl;
+                cout << "1.要素の表示" << endl;
+                cout << "2.要素の挿入" << endl;
+                cout << "3.要素の編集" << endl;
+                cout << "4.要素の削除" << endl;
+                cout << "5.要素のクリア" << endl;
+                cout << endl;
+                cout << "-------------------------------" << endl;
+                cout << "操作を選択してください" << endl;
+                do {
+                    cin >> input;
+                    try {
+                        stoi(input);
+                    }
+                    catch (std::invalid_argument) {
+                        input = "-256";
+                    }
+                } while (stoi(input) > 4 && stoi(input) < 1);
+                state = (State)stoi(input);
+            }
+            else
+            {
+                system("cls");
+
+                cout << "[要素の操作]" << endl;
+                cout << "1.要素の表示" << endl;
+                cout << "2.要素の挿入" << endl;
+                cout << endl;
+                cout << "-------------------------------" << endl;
+                cout << "操作を選択してください" << endl;
+                do {
+                    cin >> input;
+                    try {
+                        stoi(input);
+                    }
+                    catch (std::invalid_argument) {
+                        input = "-256";
+                    }
+                } while (stoi(input) > 2 && stoi(input) < 1);
+                state = (State)stoi(input);
+            }
         }
 
         if (state == State::OUTPUT)
         {
             //要素の表示
-            if (!hasDrew[0])
-            {
-                system("cls");
+            system("cls");
 
-                input = "0";
-                cout << "[要素の表示]" << endl;
-                cout << "1.要素の一覧表示" << endl;
-                cout << "2.順番を指定して要素を表示" << endl;
-                cout << "9.要素操作に戻る" << endl;
-                cout << endl << "操作を選択してください。" << endl;
+            input = "0";
+            cout << "[要素の表示]" << endl;
+            cout << "1.要素の一覧表示" << endl;
+            cout << "2.順番を指定して要素を表示" << endl;
+            cout << "9.要素操作に戻る" << endl;
+            cout << endl << "操作を選択してください。" << endl;
+            do {
                 cin >> input;
-                hasDrew[0] = true;
-            }
+                try {
+                    stoi(input);
+                }
+                catch (std::invalid_argument) {
+                    input = "-256";
+                }
+            } while (stoi(input) != 1 && stoi(input) != 2 && stoi(input) != 9);
 
             //要素の一覧表示
-            if (stoi(input) == 1 && !hasDrew[1])
+            if (stoi(input) == 1)
             {
                 system("cls");
                 cout << "[要素の一覧表示]" << endl;
@@ -85,15 +121,22 @@ int main()
 
                 cout << endl << "-------------------------------" << endl;
                 cout << "1.要素の表示に戻る" << endl;
-                cout << "2.要素の操作に戻る" << endl;
+                cout << "9.要素の操作に戻る" << endl;
 
-                cin >> input;
+                do {
+                    cin >> input;
+                    try {
+                        stoi(input);
+                    }
+                    catch (std::invalid_argument) {
+                        input = "-256";
+                    }
+                } while (stoi(input) != 1 && stoi(input) != 9);
 
-                hasDrew[1] = true;
             }
 
             //順番を指定して要素を表示
-            if (stoi(input) == 2 && !hasDrew[2])
+            if (stoi(input) == 2)
             {
                 system("cls");
                 cout <<"[順番を指定して要素を表示]" << endl;
@@ -104,26 +147,22 @@ int main()
 
                 cout << endl << "-------------------------------" << endl;
                 cout << "1.要素の表示に戻る" << endl;
-                cout << "2.要素の操作に戻る" << endl;
+                cout << "9.要素の操作に戻る" << endl;
 
-                cin >>input;
-
-                hasDrew[2] = true;
-            }
-
-            if (stoi(input) == 1)
-            {
-                hasDrew[0] = false;
-                hasDrew[1] = false;
-                hasDrew[2] = false;
+                do {
+                    cin >> input;
+                    try {
+                        stoi(input);
+                    }
+                    catch (std::invalid_argument) {
+                        input = "-256";
+                    }
+                } while (stoi(input) != 1 && stoi(input) != 9);
             }
 
             // 要素操作に戻る
-            if (stoi(input) == 9 || stoi(input) == 2)
+            if (stoi(input) == 9)
             {
-                hasDrew[0] = 0;
-                hasDrew[1] = 0;
-                hasDrew[2] = 0;
                 state = State::MENU;
             }
         }
@@ -131,53 +170,165 @@ int main()
         // 要素の挿入
         if (state == State::INSERT)
         {
-            if (hasDrew[0] == 0)
+            system("cls");
+            cout << "[リスト要素の挿入]" << endl;
+            cout << "要素を追加する場所を指定してください。" << endl;
+            cout << "最後尾に追加する場合は何も入力しないでください。" << endl;
+
+            cin.clear();
+            cin.ignore(1024, '\n');
+            getline(cin, input); // TODO: 入力なしを検知
+
+            cout << "追加する要素を入力してください。" << endl;
+            cin >> str;
+
+            if (input == string(""))
             {
-                system("cls");
-                cout << "[リスト要素の挿入]" << endl;
-                cout << "要素を追加する場所を指定してください。" << endl;
-                cout << "最後尾に追加する場合は何も入力しないでください。" << endl;
-                cin >> input; // TODO: 入力なしを検知
-
-                cout << "追加する要素の値を入力してください。" << endl;
-                cin >> str;
-
-                if (false /*入力なしの場合*/)
-                {
-                    strList.PushBack(str);
-                    cout << "要素\"" << str << "\"が最後尾に挿入されました。" << endl;
-                }
-                else
-                {
-                    strList.Insert(stoi(input), str);
-                    cout << "要素\"" << str << "\"が" << input << "番目に挿入されました。" << endl;
-                }
-
-                cout << "9.要素操作に戻る" << endl;
-                cin >> input;
-                hasDrew[0] = 1;
+                strList.PushBack(str);
+                cout << "要素\"" << str << "\"が最後尾に挿入されました。" << endl;
+            }
+            else
+            {
+                strList.Insert(stoi(input), str);
+                cout << "要素\"" << str << "\"が" << input << "番目に挿入されました。" << endl;
             }
 
+            cout << "9:要素操作に戻る" << endl;
+            do {
+                cin >> input;
+                try {
+                    stoi(input);
+                }
+                catch (std::invalid_argument) {
+                    input = "-256";
+                }
+            } while (stoi(input) != 9);
+           
             if (stoi(input) == 9)
             {
-                hasDrew[0] = 0;
                 state = State::MENU;
             }
         }
 
         if (state == State::EDIT)
         {
-            cout << "要素の編集" << endl;
+            system("cls");
+            cout << "[リスト要素の編集]" << endl;
+            cout << "要素を編集する場所を指定してください。" << endl;
+
+            cin.clear();
+            cin.ignore(1024, '\n');
+            getline(cin, input);
+
+            if (stoi(input) >= strList.Size() || stoi(input) < 0)
+            {
+                cout << input << "番目の要素が見つかりませんでした。" << endl;
+            }
+            else {
+                cout << "編集後の要素を入力してください。" << endl;
+                cin >> str;
+
+                strList[stoi(input)] = str;
+                cout << "要素\"" << input << "\"が" << str << "に変更されました。" << endl;
+            }
+
+            cout << "9:要素操作に戻る" << endl;
+            do {
+                cin >> input;
+                try {
+                    stoi(input);
+                }
+                catch (std::invalid_argument) {
+                    input = "-256";
+                }
+            } while (stoi(input) != 9);
+
+            if (stoi(input) == 9)
+            {
+                state = State::MENU;
+            }
         }
 
         if (state == State::DEL)
         {
-            cout << "要素の削除" << endl;
+            system("cls");
+            cout << "[リスト要素の削除]" << endl;
+            cout << "要素を削除する場所を指定してください。" << endl;
+
+            cin >> input;
+
+            if (stoi(input) >= strList.Size() || stoi(input) < 0)
+            {
+                cout << input << "番目の要素が見つかりませんでした。" << endl;
+            }
+            else
+            {
+
+                auto itr = strList.Begin();
+                for (int i = 0; i < stoi(input); i++)
+                {
+                    itr++;
+                }
+                strList.Erase(itr);
+                cout << input << "番目の要素が削除されました。" << endl;
+            }
+
+            cout << "9:要素操作に戻る" << endl;
+            do {
+                cin >> input;
+                try {
+                    stoi(input);
+                }
+                catch (std::invalid_argument) {
+                    input = "-256";
+                }
+            } while (stoi(input) != 9);
+
+            if (stoi(input) == 9)
+            {
+                state = State::MENU;
+            }
         }
 
         if (state == State::SORT)
         {
-            cout << "要素の並び替え" << endl;
+            system("cls");
+            cout << "[リスト要素のクリア]" << endl;
+            cout << "1:要素をすべて削除" << endl;
+            cout << "9:要素を削除せずに戻る" << endl;
+
+            do {
+                cin >> input;
+                try {
+                    stoi(input);
+                }
+                catch (std::invalid_argument) {
+                    input = "-256";
+                }
+            } while (stoi(input) != 9 && stoi(input) != 1);
+
+            if (stoi(input) == 1)
+            {
+                strList.Clear();
+                cout << input << "すべての要素が削除されました。" << endl;
+
+                cout << "9:要素操作に戻る" << endl;
+                do {
+                    cin >> input;
+                    try {
+                        stoi(input);
+                    }
+                    catch (std::invalid_argument) {
+                        input = "-256";
+                    }
+                } while (stoi(input) != 9);
+            }
+
+            if (stoi(input) == 9)
+            {
+                state = State::MENU;
+            }
+
         }
     }
 

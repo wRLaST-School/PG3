@@ -66,7 +66,7 @@ namespace Sp {
 			return &cell->raw;
 		}
 
-		Cell<T>* cell;
+		Cell<T>* cell = nullptr;
 	};
 
 	template<class T>
@@ -145,15 +145,23 @@ namespace Sp {
 			itr = Iterator<T>(newCell);
 		};
 
-		Iterator<T> Erase(Iterator<T>& itr) {
+		Iterator<T> Erase(Iterator<T> itr) {
 			Cell<T>* cell = itr.cell;
 			Iterator<T> ret(cell->next);
 			if (cell->next) {
 				cell->next->prev = cell->prev;
 			}
+			else
+			{
+				endAndStart.prev = cell->prev;
+			}
 
 			if (cell->prev) {
 				cell->prev->next = cell->next;
+			}
+			else
+			{
+				endAndStart.next = cell->next;
 			}
 
 			delete cell;
@@ -162,6 +170,7 @@ namespace Sp {
 		};
 
 		void ForEach(std::function<void(T&)> process) {
+			if (endAndStart.next == nullptr) { return; }
 			Iterator<T> itr = Begin();
 			while (itr.cell) {
 				process(itr.cell->raw);
@@ -184,11 +193,10 @@ namespace Sp {
 		};
 
 		void Clear() {
-			RemoveIf(
-				[&](auto& o) {
-					return true;
-				}
-			);
+			while (endAndStart.next)
+			{
+				Erase(Iterator<T>(endAndStart.next));
+			}
 		};
 
 		Iterator<T> Begin() {
