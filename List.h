@@ -34,23 +34,38 @@ namespace Sp {
 
 		Iterator& operator ++()
 		{
-			this->cell = cell->next();
+			this->cell = cell->next;
+			return *this;
+		}
+
+		Iterator operator ++(int)
+		{
+			Iterator temp = *this;
+			cell = cell->next;
+			return temp;
 		}
 
 		Iterator& operator --()
 		{
-			this->cell = cell->prev();
+			cell = cell->prev;
+			return *this;
+		}
+
+		Iterator operator --(int)
+		{
+			Iterator temp = *this;
+			this->cell = cell->prev;
+			return temp;
 		}
 
 		T operator*() {
 			return cell->raw;
 		}
 
-		Cell<T>* operator->() {
-			return cell;
+		T* operator&() {
+			return &cell->raw;
 		}
 
-	private:
 		Cell<T>* cell;
 	};
 
@@ -62,7 +77,7 @@ namespace Sp {
 
 		Iterator<T> PushFront(T obj) {
 			Cell<T>* front;
-			front = (Cell<T>*)malloc(sizeof(Cell<T>));
+			front = new Cell<T>;
 			front->raw = obj;
 			front->prev = nullptr;
 			front->next = endAndStart.next;
@@ -70,26 +85,34 @@ namespace Sp {
 			if (endAndStart.next) {
 				endAndStart.next = front;
 			}
+			else {
+				endAndStart.prev = front;
+			}
 
 			return Iterator<T>(front);
 		};
 
 		Iterator<T> PushBack(T obj) {
 			Cell<T>* back;
-			back = (Cell<T>*)malloc(sizeof(Cell<T>));
+			back = new Cell<T>();
 			back->raw = obj;
 			back->prev = endAndStart.prev;
 			back->next = nullptr;
 
 			if (endAndStart.prev) {
-				endAndStart.prev.next = back;
+				endAndStart.prev->next = back;
 			}
+			else {
+				endAndStart.next = back;
+			}
+
+			endAndStart.prev = back;
 
 			return Iterator<T>(back);
 		};
 
 		T* Insert(size_t index, T& obj) {
-			if (index >= Size()) { return PushBack(obj); }
+			if (index >= Size()) { return &PushBack(obj).cell->raw; }
 			
 			Iterator<T> itr = Begin();
 			for (int i = 0; i < index; i++) {
@@ -100,19 +123,19 @@ namespace Sp {
 		};
 
 		T* InsertOn(Iterator<T>& itr, T& obj) {
-			Cell<T> cell = itr.cell;
+			Cell<T>* cell = itr.cell;
 			if (cell == nullptr) {
-				return PushBack(obj);
+				return &PushBack(obj);
 			}
 
 			if (cell->prev == nullptr) {
-				return PushFront(obj);
+				return &PushFront(obj);
 			}
 
 			Cell<T>* newCell;
-			newCell = (Cell<T>*)malloc(sizeof(Cell<T>));
+			newCell = new Cell<T>();
 			newCell->raw = obj;
-			newCell->prev = cell.prev;
+			newCell->prev = cell->prev;
 			newCell->next = cell;
 
 			cell->prev->next = newCell;
@@ -122,9 +145,9 @@ namespace Sp {
 			itr = Iterator<T>(newCell);
 		};
 
-		Iterator<T> Erase(Iterator<T>* itr) {
-			Cell<T>* cell = itr->cell;
-			Iterator<T>* ret(cell->next);
+		Iterator<T> Erase(Iterator<T>& itr) {
+			Cell<T>* cell = itr.cell;
+			Iterator<T> ret(cell->next);
 			if (cell->next) {
 				cell->next->prev = cell->prev;
 			}
@@ -138,18 +161,18 @@ namespace Sp {
 			return ret;
 		};
 
-		void ForEach(std::function<void(T)> process) {
-			Iterator<T> itr(Begin());
-			while (itr) {
-				process(itr->raw);
+		void ForEach(std::function<void(T&)> process) {
+			Iterator<T> itr = Begin();
+			while (itr.cell) {
+				process(itr.cell->raw);
 				itr++;
 			}
 		};
 
-		void RemoveIf(std::function<bool(T)> condition) {
+		void RemoveIf(std::function<bool(T&)> condition) {
 			Iterator<T> itr(Begin());
-			while (itr) {
-				if (process(itr->raw))
+			while (itr.cell) {
+				if (condition(itr.cell->raw))
 				{
 					itr = Iterator<T>(Erase(itr));
 				}
@@ -168,41 +191,39 @@ namespace Sp {
 			);
 		};
 
-		Iterator<T>* Begin() {
+		Iterator<T> Begin() {
 			return Iterator<T>(endAndStart.next);
 		};
 
-		Iterator<T>* End() {
+		Iterator<T> End() {
 			return Iterator<T>(endAndStart.prev);
 		};
 
 		T* At(size_t index) throw (std::out_of_range) {
-			Iterator<T>* ret = Begin();
+			Iterator<T> ret = Begin();
 			for (int i = 0; i < index; i++) {
 				ret++;
 			}
 
-			if (ret->cell == nullptr) {
-				throw std::out_of_range;
+			if (ret.cell == nullptr) {
+				throw (std::out_of_range(""));
 			}
 
-			return &ret->cell->raw;
+			return &ret.cell->raw;
 		};
 
 		T& operator[](size_t index) throw (std::out_of_range) {
-			return At(index);
+			return *At(index);
 		};
 
 		size_t Size() {
 			size_t i = 0;
-			ForEach([](auto& o) { i++; });
+			ForEach([&](auto& o) { i++; });
 
 			return i;
 		}
 		
 	private:
-		size_t size;
-
 		Cell<T> endAndStart;
 	};
 
